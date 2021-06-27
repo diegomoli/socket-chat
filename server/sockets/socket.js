@@ -19,14 +19,22 @@ io.on("connection", (client) => {
     client.broadcast
       .to(data.sala)
       .emit("listaPersona", usuarios.getPersonasPorSalas(data.sala));
+    client.broadcast
+      .to(data.sala)
+      .emit(
+        "crearMensaje",
+        crearMensaje("Administrador", `${data.nombre} entró`)
+      );
 
     callback(usuarios.getPersonasPorSalas(data.sala)); //retorno las personas que están conectadas al chat
   });
 
-  client.on("crearMensaje", (data) => {
+  client.on("crearMensaje", (data, callback) => {
     let persona = usuarios.getPersona(client.id); //Para traer el nombre de la persona como data.nombre
     let mensaje = crearMensaje(persona.nombre, data.mensaje); //Informacion que el cliente envia
     client.broadcast.to(persona.sala).emit("crearMensaje", mensaje);
+
+    callback(mensaje);
   });
 
   client.on("disconnect", () => {
